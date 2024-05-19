@@ -1,0 +1,44 @@
+name: Notebook Conversion
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  convert-notebooks:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install nbformat==5.10.4 nbconvert==7.16.1 jupyter
+
+    - name: Create and convert notebook
+      run: |
+        python create_notebook.py
+        jupyter nbconvert --to html my_notebook.ipynb
+        jupyter nbconvert --to pdf my_notebook.ipynb
+
+    - name: Upload HTML artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: notebook-html
+        path: my_notebook.html
+
+    - name: Upload PDF artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: notebook-pdf
+        path: my_notebook.pdf
